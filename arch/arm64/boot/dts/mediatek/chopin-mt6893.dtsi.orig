@@ -1,0 +1,125 @@
+
+/ {
+	model = "CHOPIN";
+	compatible = "mediatek,MT6893";
+};
+
+/* ===================== DSI / Panel (K10A) ===================== */
+&dsi0 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	panel1@0 {
+		compatible = "k10a_36_02_0a_dsc_vdo,lcm";
+		reg = <0>;
+		dvdd-supply = <&wl2866d2_dvdd2>;
+		reset-gpios = <&pio 42 0>;
+		bias-gpios = <&pio 126 0>,
+			<&pio 148 0>;
+		pinctrl-names = "default";
+		port {
+			panel_in1: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+
+	panel2@1 {
+		compatible = "k10a_42_02_0b_dsc_vdo,lcm";
+		reg = <1>;
+		dvdd-supply = <&wl2866d2_dvdd2>;
+		reset-gpios = <&pio 42 0>;
+		bias-gpios = <&pio 126 0>,
+			<&pio 148 0>;
+		pinctrl-names = "default";
+		port {
+			panel_in2: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+
+	ports {
+		port {
+			dsi_out: endpoint {
+				remote-endpoint = <&panel_in1>;
+			};
+		};
+	};
+};
+
+/* ===================== Touch (Novatek NT36672C, SPI0) ===================== */
+&spi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	mediatek,pad-select = <1>;
+	mediatek,kthread-rt = <1>;
+
+	ts_novatek@0 {
+		compatible = "novatek,NVT-ts-spi";
+		reg = <0>;
+		status = "ok";
+		spi-max-frequency = <9600000>;
+		novatek,irq-gpio = <&pio 19 0x2001>;
+		pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
+		pinctrl-0 = <&ts_int_active &ts_cs_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_cs_suspend>;
+		novatek,swrst-n8-addr = <0x03F0FE>;
+		novatek,spi-rd-fast-addr = <0x03F310>;
+		novatek,config-array-size = <2>;
+		novatek,cfg_0 {
+			novatek,tp-vendor = <0x46>;
+			novatek,display-maker = <0x36>;
+			novatek,fw-name = "novatek_nt36672c_k10a_fw01.bin";
+			novatek,mp-name = "novatek_nt36672c_k10a_mp01.bin";
+			novatek,clicknum-file-name = "nvt+tianma";
+		};
+		novatek,cfg_1 {
+			novatek,tp-vendor = <0x53>;
+			novatek,display-maker = <0x42>;
+			novatek,fw-name = "novatek_nt36672c_k10a_fw02.bin";
+			novatek,mp-name = "novatek_nt36672c_k10a_mp02.bin";
+			novatek,clicknum-file-name = "nvt+csot";
+		};
+	};
+};
+
+/* ===================== Pinctrl (touch IRQ/CS) ===================== */
+&pio {
+	/* Touch INT / CS */
+	ts_int_active: int_active {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+	ts_int_suspend: int_suspend {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	ts_cs_active: ts_cs_active {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO169__FUNC_SPI0_B_CSB>,
+				 <PINMUX_GPIO170__FUNC_SPI0_B_MI>;
+		};
+	};
+	ts_cs_suspend: ts_cs_suspend {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO169__FUNC_GPIO169>,
+				 <PINMUX_GPIO170__FUNC_GPIO170>;
+			slew-rate = <1>;
+			bias-pull-down;
+			output-low;
+		};
+	};
+};
+
+&tboard_thermistor4 {
+	thermal_rename = "charger_therm";
+};

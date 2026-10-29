@@ -13,7 +13,6 @@
 	panel1@0 {
 		compatible = "k10a_36_02_0a_dsc_vdo,lcm";
 		reg = <0>;
-		dvdd-supply = <&wl2866d2_dvdd2>;
 		reset-gpios = <&pio 42 0>;
 		bias-gpios = <&pio 126 0>,
 			<&pio 148 0>;
@@ -28,7 +27,6 @@
 	panel2@1 {
 		compatible = "k10a_42_02_0b_dsc_vdo,lcm";
 		reg = <1>;
-		dvdd-supply = <&wl2866d2_dvdd2>;
 		reset-gpios = <&pio 42 0>;
 		bias-gpios = <&pio 126 0>,
 			<&pio 148 0>;
